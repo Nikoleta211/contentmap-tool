@@ -1,3 +1,4 @@
+export const maxDuration = 300;
 import { askClaude, subtopicsPrompt, ideasPrompt } from '../../lib/claude';
 
 export async function POST(req) {
