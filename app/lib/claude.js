@@ -17,7 +17,7 @@ export function parseJsonArray(raw) {
 export async function askClaude(userPrompt) {
   const msg = await anthropic.messages.create({
     model: 'claude-sonnet-5',
-    max_tokens: 1200,
+    max_tokens: 4000,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }]
   });
