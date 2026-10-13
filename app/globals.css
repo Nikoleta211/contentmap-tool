@@ -267,3 +267,18 @@ footer { text-align: center; color: var(--grey-mid); font-size: 0.78rem; margin-
   .subtopics-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; }
   .idea-text, .subtopic-title, .oberthema-node .title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Positionierungs-Ergebnis einfügen */
+.steckbrief-toggle { display: block; margin: 0.9rem 0 0; padding: 0; background: none; border: none; color: var(--pink-muted); font-family: inherit; font-size: 0.85rem; cursor: pointer; text-align: left; }
+.steckbrief-toggle:hover { text-decoration: underline; }
+.steckbrief-box { margin: 1rem 0 1.2rem; }
+.steckbrief-box textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-pink); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9rem; color: var(--grey-dark); background: #fff; resize: vertical; }
+.steckbrief-box textarea:focus { outline: none; border-color: var(--pink-light); }
+.steckbrief-hint { font-size: 0.78rem; color: var(--grey-mid); margin-top: 0.4rem; }
+
+/* Hooks unter jeder Idee */
+.idea-body { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.idea-hook { display: block; text-align: left; background: var(--bg-section); border: none; border-radius: var(--radius-sm); padding: 0.25rem 0.5rem; font-family: inherit; font-size: 0.8rem; color: var(--pink-muted); cursor: pointer; line-height: 1.4; }
+.idea-hook:hover { background: #fbe3eb; }
+.idea-hook-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pink-light); margin-right: 0.3rem; }
+@media print { .steckbrief-toggle, .steckbrief-box { display: none; } .idea-hook { background: none; padding: 0; } }

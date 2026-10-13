@@ -4,6 +4,8 @@ import { useState, useRef } from 'react';
 
 export default function Page() {
   const [oberthemaInput, setOberthemaInput] = useState('');
+  const [steckbriefInput, setSteckbriefInput] = useState('');
+  const [steckbriefOffen, setSteckbriefOffen] = useState(false);
   const [anzahlThemen, setAnzahlThemen] = useState(4);
   const [anzahlIdeen, setAnzahlIdeen] = useState(15);
   const [status, setStatus] = useState('');
@@ -11,7 +13,7 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [copyConfirm, setCopyConfirm] = useState('');
 
-  const [map, setMap] = useState(null); // { oberthema, unterthemen: [{titel, ideen}] }
+  const [map, setMap] = useState(null); // { oberthema, steckbrief, unterthemen: [{titel, ideen: [{idee, hooks}]}] }
 
   async function callApi(url, body) {
     const res = await fetch(url, {
@@ -28,7 +30,8 @@ export default function Page() {
 
   async function generateFullMap() {
     const oberthema = oberthemaInput.trim();
-    if (!oberthema) {
+    const steckbrief = steckbriefInput.trim();
+    if (!oberthema && !steckbrief) {
       setStatus('Bitte zuerst ein Oberthema eingeben.');
       return;
     }
@@ -39,7 +42,7 @@ export default function Page() {
     setStatus('Deine Content-Map wird erstellt...');
 
     try {
-      const data = await callApi('/api/generate', { oberthema, anzahlThemen, anzahlIdeen });
+      const data = await callApi('/api/generate', { oberthema, steckbrief, anzahlThemen, anzahlIdeen });
       setMap(data);
       setStatus('');
     } catch (err) {
@@ -56,7 +59,7 @@ export default function Page() {
     setSpinning(true);
     setStatus(`Neue Ideen für "${sub.titel}" werden erstellt...`);
     try {
-      const data = await callApi('/api/ideas', { oberthema: map.oberthema, unterthema: sub.titel, anzahl: anzahlIdeen });
+      const data = await callApi('/api/ideas', { oberthema: map.oberthema, unterthema: sub.titel, anzahl: anzahlIdeen, steckbrief: map.steckbrief });
       const updated = { ...map, unterthemen: map.unterthemen.map((s, i) => (i === index ? { ...s, ideen: data.ideen } : s)) };
       setMap(updated);
       setStatus('');
@@ -73,7 +76,7 @@ export default function Page() {
     setSpinning(true);
     setStatus('Neues Unterthema wird erstellt...');
     try {
-      const data = await callApi('/api/ideas', { oberthema: map.oberthema, unterthema: map.oberthema, anzahl: anzahlIdeen });
+      const data = await callApi('/api/ideas', { oberthema: map.oberthema, unterthema: map.oberthema, anzahl: anzahlIdeen, steckbrief: map.steckbrief });
       setMap((prev) => ({
         ...prev,
         unterthemen: prev.unterthemen.map((s, i) => (i === prev.unterthemen.length - 1 ? { ...s, ideen: data.ideen } : s))
@@ -93,7 +96,7 @@ export default function Page() {
     setMap((prev) => ({
       ...prev,
       unterthemen: prev.unterthemen.map((s, i) =>
-        i === subIndex ? { ...s, ideen: s.ideen.map((idea, j) => (j === ideaIndex ? value : idea)) } : s
+        i === subIndex ? { ...s, ideen: s.ideen.map((idea, j) => (j === ideaIndex ? { ...idea, idee: value } : idea)) } : s
       )
     }));
   }
@@ -108,7 +111,7 @@ export default function Page() {
   function addIdea(subIndex) {
     setMap((prev) => ({
       ...prev,
-      unterthemen: prev.unterthemen.map((s, i) => (i === subIndex ? { ...s, ideen: [...s.ideen, 'Neue Idee'] } : s))
+      unterthemen: prev.unterthemen.map((s, i) => (i === subIndex ? { ...s, ideen: [...s.ideen, { idee: 'Neue Idee', hooks: [] }] } : s))
     }));
   }
 
@@ -126,13 +129,23 @@ export default function Page() {
     map.unterthemen.forEach((sub) => {
       text += sub.titel + '\n';
       sub.ideen.forEach((idea) => {
-        text += '  - ' + idea + '\n';
+        text += '  - ' + idea.idee + '\n';
+        idea.hooks.forEach((h) => {
+          text += '      Hook: ' + h + '\n';
+        });
       });
       text += '\n';
     });
     navigator.clipboard.writeText(text).then(() => {
       setCopyConfirm('In die Zwischenablage kopiert.');
       setTimeout(() => setCopyConfirm(''), 2500);
+    });
+  }
+
+  function copyHook(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopyConfirm('Hook kopiert.');
+      setTimeout(() => setCopyConfirm(''), 2000);
     });
   }
 
@@ -151,11 +164,30 @@ export default function Page() {
         <input
           type="text"
           id="oberthema-input"
-          placeholder="z.B. Persönlichkeitsentwicklung im Network Marketing"
+          placeholder="z.B. Abnehmen in den Wechseljahren"
           value={oberthemaInput}
           onChange={(e) => setOberthemaInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && generateFullMap()}
         />
+
+        {!steckbriefOffen ? (
+          <button type="button" className="steckbrief-toggle" onClick={() => setSteckbriefOffen(true)}>
+            + Du hast schon dein Ergebnis aus dem Positionierungs-Tool? Hier einfügen
+          </button>
+        ) : (
+          <div className="steckbrief-box">
+            <label htmlFor="steckbrief-input">Dein Ergebnis aus dem Positionierungs-Tool (freiwillig)</label>
+            <textarea
+              id="steckbrief-input"
+              rows={6}
+              maxLength={6000}
+              placeholder="Im Positionierungs-Tool auf „Für die Content Map kopieren“ klicken und hier einfügen."
+              value={steckbriefInput}
+              onChange={(e) => setSteckbriefInput(e.target.value)}
+            />
+            <div className="steckbrief-hint">Dann werden deine Säulen zu den Unterthemen und die Ideen passen zu deiner Zielgruppe. Das Oberthema kannst du dann auch leer lassen.</div>
+          </div>
+        )}
 
         <div className="controls-row">
           <div>
@@ -229,14 +261,21 @@ export default function Page() {
                     {sub.ideen.map((idea, ideaIndex) => (
                       <li className="idea-row" key={ideaIndex}>
                         <span className="idea-dot">·</span>
-                        <span
-                          className="idea-text"
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => updateIdea(subIndex, ideaIndex, e.target.textContent)}
-                        >
-                          {idea}
-                        </span>
+                        <div className="idea-body">
+                          <span
+                            className="idea-text"
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) => updateIdea(subIndex, ideaIndex, e.target.textContent)}
+                          >
+                            {idea.idee}
+                          </span>
+                          {idea.hooks.map((h, k) => (
+                            <button type="button" className="idea-hook" key={k} title="Hook kopieren" onClick={() => copyHook(h)}>
+                              <span className="idea-hook-label">Hook</span> {h}
+                            </button>
+                          ))}
+                        </div>
                         <button className="idea-remove" onClick={() => removeIdea(subIndex, ideaIndex)}>
                           ×
                         </button>
