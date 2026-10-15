@@ -103,15 +103,8 @@ SO SIEHT EINE GUTE IDEE AUS
 - Mische: Tipps zum direkt Umsetzen, Irrtümer, Alltagsszenen, ehrliche Eingeständnisse als offene Impulse, Haltung.
 - Ideen in Ich-Form oder über das eigene Leben bleiben offen: Du legst dem Nutzer keine Kinder, Partner, Hobbys, Kurse, Orte, Gewohnheiten oder Erlebnisse in den Mund, die nicht in der Eingabe stehen. Richtig: "Der Moment, in dem mir klar wurde, dass es so nicht weitergeht". Falsch: "Meine Tochter fragt beim Abendessen".
 
-HOOKS
-Zu jeder Idee 1 oder 2 Hooks. Der Hook ist der Text auf dem Cover oder die erste Einblendung im Video. Höchstens 10 Wörter, so wie man es sagt.
-- Er wiederholt die Idee nicht, er macht neugierig darauf.
-- Er hat ein greifbares Detail aus der Idee (eine Uhrzeit, ein Satz, ein Gegenstand, eine Handlung). Allgemeine Hooks wie „Das steckt dahinter“ sind zu schwach.
-- Gern so: erst Druck rausnehmen, dann eine Lücke öffnen, die man schließen will.
-- Ein zweiter Hook nur, wenn er die Idee von einer anderen Seite packt.
-
 Alle Beispiele zeigen nur die Art. Übernimm sie nie.
 
-Antworte nur mit einem JSON-Array:
-[{"idee": "...", "hooks": ["..."]}, {"idee": "...", "hooks": ["...", "..."]}]`;
+Antworte nur mit einem JSON-Array aus Strings, eine Idee pro Eintrag:
+["...", "..."]`;
 }
